@@ -52,6 +52,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.black,
         splashColor: Colors.transparent,
         buttonTheme: ButtonThemeData(buttonColor: Colors.black),
+        appBarTheme: AppBarTheme(iconTheme: IconThemeData(color: Colors.black)),
         textSelectionTheme: TextSelectionThemeData(selectionColor: Colors.black12),
       ),
       initialBinding: InitialBinding(),
