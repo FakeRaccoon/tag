@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -523,10 +524,10 @@ class DataEditBody extends StatelessWidget {
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: FadeInImage.assetNetwork(
-                          placeholder: 'assets/images/basic.png',
-                          image:
-                              '${Get.find<InitialController>().url}/storage/${controller.data.value.images![index].url!}',
+                        child: CachedNetworkImage(
+                          placeholder: (context, url) => Image.asset('assets/images/basic.png'),
+                          imageUrl:
+                              '${dio.options.baseUrl.split('/api').first}/storage/${controller.data.value.images![index].url!}',
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -840,7 +841,7 @@ class _ImageBottomSheetState extends State<ImageBottomSheet> {
   }
 
   Future<Null> cropImage(source) async {
-    File? croppedFile = await ImageCropper.cropImage(
+    File? croppedFile = await ImageCropper().cropImage(
       sourcePath: source,
       aspectRatioPresets: [CropAspectRatioPreset.square],
       androidUiSettings: AndroidUiSettings(

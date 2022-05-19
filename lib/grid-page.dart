@@ -158,7 +158,7 @@ class _GridPageState extends State<GridPage> {
           ),
         ),
         backgroundColor: Colors.white,
-        body: FutureBuilder<AllDataModel>(
+        body: FutureBuilder(
           future: APIService().getAllTag(1),
           builder: (BuildContext context, AsyncSnapshot<AllDataModel> snapshot) {
             if (snapshot.hasData) {

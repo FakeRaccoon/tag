@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -7,11 +8,13 @@ import 'package:tag/Bindings/home-binding.dart';
 import 'package:tag/Bindings/initial-binding.dart';
 import 'package:tag/Bindings/login-binding.dart';
 import 'package:tag/add-warehouse.dart';
+import 'package:tag/api-service.dart';
 import 'package:tag/data-edit-page.dart';
 import 'package:tag/data-input-page.dart';
 import 'package:tag/export-pdf.dart';
 import 'package:tag/grid-page.dart';
 import 'package:tag/home.dart';
+import 'package:tag/interceptor.dart';
 import 'package:tag/item-list-page.dart';
 import 'package:tag/log-page.dart';
 import 'package:tag/login-page.dart';
@@ -19,7 +22,13 @@ import 'package:tag/root.dart';
 
 void main() async {
   await GetStorage.init();
+  dio.interceptors.add(customInterceptor);
   runApp(MyApp());
+}
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {PointerDeviceKind.touch, PointerDeviceKind.mouse};
 }
 
 class MyApp extends StatelessWidget {
@@ -34,9 +43,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      builder: (context, child) {
-        return ScrollConfiguration(behavior: MyBehavior(), child: child!);
-      },
+      scrollBehavior: MyCustomScrollBehavior(),
       title: 'Tag',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -44,6 +51,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.light(primary: Colors.black54),
         primaryColor: Colors.black,
         splashColor: Colors.transparent,
+        buttonTheme: ButtonThemeData(buttonColor: Colors.black),
         textSelectionTheme: TextSelectionThemeData(selectionColor: Colors.black12),
       ),
       initialBinding: InitialBinding(),

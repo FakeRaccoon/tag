@@ -1,0 +1,21 @@
+{
+    "workbench.colorTheme": "Default Dark+",
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            120
+        ],
+        "editor.selectionHighlight": false,
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.suggestSelection": "first",
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": false
+    },
+    "dart.lineLength": 120,
+    "workbench.editor.enablePreview": false,
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "dart.debugExternalPackageLibraries": false,
+    "dart.debugSdkLibraries": false,
+    "files.autoSave": "afterDelay"
+}

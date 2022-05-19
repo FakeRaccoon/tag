@@ -4,8 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tag/Controllers/initial-controller.dart';
 import 'package:tag/Controllers/user-controller.dart';
 import 'package:tag/Models/all-data-model.dart';
 import 'package:tag/Models/brand-model.dart';
@@ -18,29 +16,32 @@ import 'Models/categories-model.dart';
 import 'Models/log-model.dart';
 import 'Models/warehouse-model.dart';
 
+const String cloud = "http://cloudamt.ddns.net:9999/api";
+const String local = "http://192.168.0.251:8000/api";
+
+BaseOptions cloudOptions = BaseOptions(
+  baseUrl: cloud,
+  connectTimeout: 5000,
+  receiveTimeout: 5000,
+  sendTimeout: 5000,
+);
+BaseOptions localOptions = BaseOptions(
+  baseUrl: local,
+  connectTimeout: 5000,
+  receiveTimeout: 5000,
+  sendTimeout: 5000,
+);
+
+Dio dio = Dio(cloudOptions);
+
 class APIService {
   final UserController userController = Get.find();
-  late SharedPreferences sharedPreferences;
-  static InitialController authController = Get.find();
-  static final box = GetStorage();
-  static BaseOptions options = BaseOptions(
-    baseUrl: '${authController.url}/api',
-    headers: {'Authorization': 'Bearer ${box.read('token')}'},
-    connectTimeout: 5000,
-    receiveTimeout: 5000,
-    sendTimeout: 5000,
-  );
-
-  Dio dio = Dio(options);
+  final box = GetStorage();
 
   Future<UserDetail?> getUserDetail() async {
     try {
-      final token = box.read('token');
       final response = await dio.get(
-        '${authController.url}/api/users/detail',
-        options: Options(
-          headers: {'Authorization': 'Bearer $token'},
-        ),
+        '/users/detail',
       );
       return userFromJson(jsonEncode(response.data['data']));
     } on DioError catch (e) {
@@ -50,12 +51,8 @@ class APIService {
 
   Future getTag(String code) async {
     try {
-      final token = box.read('token');
       final response = await dio.get(
-        '${authController.url}/api/tags/$code',
-        options: Options(
-          headers: {'Authorization': 'Bearer $token'},
-        ),
+        '/tags/$code',
       );
       return tagModelFromJson(jsonEncode(response.data['data']));
     } on DioError catch (e) {
@@ -65,12 +62,8 @@ class APIService {
 
   Future<AllDataModel> getAllTag(int page) async {
     try {
-      final token = box.read('token');
       final response = await dio.get(
-        '${authController.url}/api/tags?page=$page',
-        options: Options(
-          headers: {'Authorization': 'Bearer $token'},
-        ),
+        '/tags?page=$page',
       );
       return allDataModelFromJson(jsonEncode(response.data));
     } on DioError catch (e) {
@@ -86,7 +79,6 @@ class APIService {
     String? group,
     String? status,
   }) async {
-    var token = box.read('token');
     int? statusInt;
     switch (status) {
       case 'Pending':
@@ -101,8 +93,7 @@ class APIService {
     }
     try {
       var response = await dio.get(
-        '${authController.url}/api/tags',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        '/tags',
         queryParameters: {
           'name': name,
           'status': statusInt,
@@ -118,11 +109,9 @@ class APIService {
   }
 
   Future<List<CategoriesModel>> getAllCategory() async {
-    var token = box.read('token');
     try {
       var response = await dio.get(
-        '${authController.url}/api/categories',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        '/categories',
       );
       return categoriesModelFromJson(jsonEncode(response.data['data']));
     } on DioError catch (e) {
@@ -131,11 +120,9 @@ class APIService {
   }
 
   Future<List<BrandModel>> getAllBrand() async {
-    var token = box.read('token');
     try {
       var response = await dio.get(
-        '${authController.url}/api/brands',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        '/brands',
       );
       return brandModelFromJson(jsonEncode(response.data['data']));
     } on DioError catch (e) {
@@ -144,12 +131,8 @@ class APIService {
   }
 
   Future<List<GroupModel>> getAllGroup() async {
-    var token = box.read('token');
     try {
-      var response = await dio.get(
-        '${authController.url}/api/groups',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+      var response = await dio.get('/groups');
       return groupModelFromJson(jsonEncode(response.data['data']));
     } on DioError catch (e) {
       throw e.message;
@@ -157,12 +140,9 @@ class APIService {
   }
 
   Future<AllDataModel> getDataByDate(int page, String fromDate, String toDate) async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
       var response = await dio.get(
-        '${authController.url}/api/tags?page=$page',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        '/tags?page=$page',
         queryParameters: {'from': fromDate, 'to': toDate},
       );
       return allDataModelFromJson(jsonEncode(response.data));
@@ -172,12 +152,9 @@ class APIService {
   }
 
   Future<ItemModel> getItem(item) async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
       var response = await dio.get(
-        '${authController.url}/api/items',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        '/items',
         queryParameters: {
           'name': item,
         },
@@ -189,11 +166,9 @@ class APIService {
   }
 
   Future editTag(String code, id, status, type, urgency, description, int location) async {
-    var token = box.read('token');
     try {
       var response = await dio.put(
-        '${authController.url}/api/tags/$code',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        '/tags/$code',
         data: {
           'item_id': id,
           'status': status,
@@ -213,11 +188,9 @@ class APIService {
   }
 
   Future createTag(String code, description, int id, location) async {
-    var token = box.read('token');
     try {
       var response = await dio.post(
-        '${authController.url}/api/tags',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        '/tags',
         data: {
           'item_code': code,
           'item_id': id,
@@ -237,15 +210,11 @@ class APIService {
   }
 
   Future createWarehouse(name, location) async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
-      var response = await dio.post('${authController.url}/api/warehouses',
-          options: Options(headers: {'Authorization': 'Bearer $token'}),
-          data: {
-            'warehouse_name': name,
-            'warehouse_location': location,
-          });
+      var response = await dio.post('/warehouses', data: {
+        'warehouse_name': name,
+        'warehouse_location': location,
+      });
       return response.data;
     } on DioError catch (e) {
       throw e.message;
@@ -253,16 +222,12 @@ class APIService {
   }
 
   Future createPart(id, name) async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
-      var response = await dio.post('${authController.url}/api/parts',
-          options: Options(headers: {'Authorization': 'Bearer $token'}),
-          data: {
-            'tag_id': id,
-            'user_id': userController.user.value.id,
-            'part_name': name,
-          });
+      var response = await dio.post('/parts', data: {
+        'tag_id': id,
+        'user_id': userController.user.value.id,
+        'part_name': name,
+      });
       return response.data;
     } on DioError catch (e) {
       print(e.response!.data);
@@ -271,16 +236,12 @@ class APIService {
   }
 
   Future createDiagnosis(id, name) async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
-      var response = await dio.post('${authController.url}/api/diagnoses',
-          options: Options(headers: {'Authorization': 'Bearer $token'}),
-          data: {
-            'tag_id': id,
-            'user_id': userController.user.value.id,
-            'diagnosis': name,
-          });
+      var response = await dio.post('/diagnoses', data: {
+        'tag_id': id,
+        'user_id': userController.user.value.id,
+        'diagnosis': name,
+      });
       return response.data;
     } on DioError catch (e) {
       print(e.response!.data);
@@ -289,16 +250,12 @@ class APIService {
   }
 
   Future createTreatment(id, name) async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
-      var response = await dio.post('${authController.url}/api/treatments',
-          options: Options(headers: {'Authorization': 'Bearer $token'}),
-          data: {
-            'tag_id': id,
-            'user_id': userController.user.value.id,
-            'treatment': name,
-          });
+      var response = await dio.post('/treatments', data: {
+        'tag_id': id,
+        'user_id': userController.user.value.id,
+        'treatment': name,
+      });
       print(response.data);
       return response.data;
     } on DioError catch (e) {
@@ -308,15 +265,11 @@ class APIService {
   }
 
   Future createImage(id, name) async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
-      var response = await dio.post('${authController.url}/api/images',
-          options: Options(headers: {'Authorization': 'Bearer $token'}),
-          data: {
-            'tag_id': id,
-            'url': name,
-          });
+      var response = await dio.post('/images', data: {
+        'tag_id': id,
+        'url': name,
+      });
       print(response.data);
       return response.data;
     } on DioError catch (e) {
@@ -326,11 +279,8 @@ class APIService {
   }
 
   Future createLog(String log, int type) async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
-      var response = await dio
-          .post('${authController.url}/api/logs', options: Options(headers: {'Authorization': 'Bearer $token'}), data: {
+      var response = await dio.post('/logs', data: {
         'log': log,
         'type': type,
       });
@@ -343,11 +293,8 @@ class APIService {
   }
 
   Future<List<WarehouseModel>> getWarehouse() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
-      var response = await dio.get('${authController.url}/api/warehouses',
-          options: Options(headers: {'Authorization': 'Bearer $token'}));
+      var response = await dio.get('/warehouses');
       return warehouseModelFromJson(jsonEncode(response.data['data']));
     } on DioError catch (e) {
       throw e.message;
@@ -355,12 +302,9 @@ class APIService {
   }
 
   Future<LogModel> getLog() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    var token = box.read('token');
     try {
       final response = await dio.get(
-        '${authController.url}/api/logs',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        '/logs',
       );
       return logModelFromJson(jsonEncode(response.data));
     } on DioError catch (e) {
@@ -371,7 +315,7 @@ class APIService {
   Future register(name, String username, String password, role) async {
     try {
       Get.dialog(Center(child: CircularProgressIndicator()), barrierDismissible: false);
-      await dio.post('${authController.url}/api/users/register', data: {
+      await dio.post('/users/register', data: {
         'name': name,
         'role': role,
         'username': username.trim(),
@@ -390,7 +334,7 @@ class APIService {
   Future login(String username, String password) async {
     try {
       var response = await dio.post(
-        '${authController.url}/api/users/login',
+        '/users/login',
         data: {
           'username': username.trim(),
           'password': password.trim(),
@@ -407,11 +351,8 @@ class APIService {
   }
 
   Future logout() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    final token = box.read('token');
     try {
-      final response = await dio.post('${authController.url}/api/users/logout',
-          options: Options(headers: {'Authorization': 'Bearer $token'}));
+      final response = await dio.post('/users/logout');
       return response.data;
     } on DioError catch (e) {
       throw e.message;

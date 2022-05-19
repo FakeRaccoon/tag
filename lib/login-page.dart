@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -5,6 +6,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tag/Controllers/initial-controller.dart';
 import 'package:tag/Controllers/login-controller.dart';
+import 'package:tag/api-service.dart';
+import 'package:tag/interceptor.dart';
 import 'package:tag/responsive.dart';
 
 class LoginPage extends StatelessWidget {
@@ -15,9 +18,17 @@ class LoginPage extends StatelessWidget {
   final GlobalKey<FormState> tabKey = GlobalKey<FormState>();
   final GlobalKey<FormState> webKey = GlobalKey<FormState>();
 
-  setUrl(url) async {
-    box.write('url', url);
-    print(box.read('url'));
+  Future<void> setUrl(bool isLocal) async {
+    if (isLocal) {
+      dio = Dio(localOptions);
+      dio.interceptors.clear();
+      dio.interceptors.add(customInterceptor);
+    } else {
+      dio = Dio(cloudOptions);
+      dio.interceptors.clear();
+      dio.interceptors.add(customInterceptor);
+    }
+    box.write('url', dio.options.baseUrl);
   }
 
   @override
@@ -74,13 +85,9 @@ class LoginPage extends StatelessWidget {
                     items: ['Local', 'Cloud'],
                     onChanged: (value) {
                       if (value == 'Local') {
-                        auth.url.value = 'http://192.168.0.251:8000';
-                        // auth.url.value = 'http://192.168.0.251:8000';
-                        setUrl('http://192.168.0.251:8000');
-                        // setUrl('http://192.168.0.251:8000');
+                        setUrl(true);
                       } else {
-                        auth.url.value = 'http://cloudamt.ddns.net:9999';
-                        setUrl('http://cloudamt.ddns.net:9999');
+                        setUrl(false);
                       }
                     },
                     validator: (value) {
@@ -158,11 +165,9 @@ class LoginPage extends StatelessWidget {
                               items: ['Local', 'Cloud'],
                               onChanged: (value) {
                                 if (value == 'Local') {
-                                  auth.url.value = 'http://192.168.0.251:8000';
-                                  setUrl('http://192.168.0.251:8000');
+                                  setUrl(true);
                                 } else {
-                                  auth.url.value = 'http://cloudamt.ddns.net:9999';
-                                  setUrl('http://cloudamt.ddns.net:9999');
+                                  setUrl(false);
                                 }
                               },
                               validator: (value) {
@@ -248,11 +253,9 @@ class LoginPage extends StatelessWidget {
                               items: ['Local', 'Cloud'],
                               onChanged: (value) {
                                 if (value == 'Local') {
-                                  auth.url.value = 'http://192.168.0.251:8000';
-                                  setUrl('http://192.168.0.251:8000');
+                                  setUrl(true);
                                 } else {
-                                  auth.url.value = 'http://cloudamt.ddns.net:9999';
-                                  setUrl('http://cloudamt.ddns.net:9999');
+                                  setUrl(false);
                                 }
                               },
                               validator: (value) {

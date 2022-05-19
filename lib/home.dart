@@ -121,6 +121,7 @@ class _HomeState extends State<Home> {
                 actions: [
                   if (userController.user.value.role == 0)
                     IconButton(
+                      color: Colors.black,
                       tooltip: 'Tambah User',
                       onPressed: () => Get.dialog(
                         RegisterDialog(),
@@ -129,11 +130,13 @@ class _HomeState extends State<Home> {
                     ),
                   if (userController.user.value.role == 0)
                     IconButton(
+                      color: Colors.black,
                       tooltip: 'Log',
                       onPressed: () => Get.toNamed('/log'),
                       icon: Icon(Icons.list_alt_rounded),
                     ),
                   IconButton(
+                    color: Colors.black,
                     onPressed: () {
                       Get.dialog(
                         Dialog(
@@ -451,6 +454,7 @@ class _HomeState extends State<Home> {
                   SizedBox(width: 10),
                   if (userController.user.value.role == 0)
                     IconButton(
+                      color: Colors.black,
                       tooltip: 'Tambah User',
                       onPressed: () => Get.dialog(
                         RegisterDialog(),
@@ -459,11 +463,13 @@ class _HomeState extends State<Home> {
                     ),
                   if (userController.user.value.role == 0)
                     IconButton(
+                      color: Colors.black,
                       tooltip: 'Log',
                       onPressed: () => Get.toNamed('/log'),
                       icon: Icon(Icons.list_alt_rounded),
                     ),
                   IconButton(
+                    color: Colors.black,
                     onPressed: () {
                       Get.dialog(
                         Dialog(
